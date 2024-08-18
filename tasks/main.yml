@@ -1,5 +1,64 @@
 ---
-# tasks file
-- name: Test Message
-  ansible.builtin.debug:
-    msg: "Hello World"
+- block:
+
+    - name: Install Transmission package
+      ansible.builtin.apt:
+        name: transmission-daemon
+        state: present
+        update_cache: yes
+        cache_valid_time: 3600
+     
+    - name: Stop Transmission Daemon before modifying settings
+      ansible.builtin.service:
+        name: transmission-daemon
+        state: stopped
+        
+    - name: Edit Transmission configuration
+      ansible.builtin.template:
+        src: tr_install_transmission-settings.json
+        dest: /etc/transmission-daemon/settings.json
+        owner: root
+        group: root
+        mode: 0644
+
+    - name: Create Transmission download/incomplete dirs if they don't exist
+      ansible.builtin.file:
+        path: "{{ item }}"
+        state: directory
+        owner: "{{ tr_install_transmission_user }}"
+        group: "{{ tr_install_transmission_group }}"
+        mode: 'u=rwxs,g=rwxs,o=rx'
+      loop:
+        - "{{ tr_install_transmission_download_dir }}"
+        - "{{ tr_install_transmission_incomplete_dir }}"
+
+    - name: Recursively change owner/permissions/setgid for Transmission download/incomplete dirs
+      ansible.builtin.file:
+        path: "{{ item }}"
+        recurse: yes
+        owner: "{{ tr_install_transmission_user }}"
+        group: "{{ tr_install_transmission_group }}"
+        mode: 'u=rwx,g=rwxs,o=rx'
+      loop:
+        - "{{ tr_install_transmission_download_dir }}"
+        - "{{ tr_install_transmission_incomplete_dir }}"
+
+    - name: Get informations about Transmission download dir
+      ansible.builtin.stat:
+        path: "{{ tr_install_transmission_download_dir }}"
+      register: tr_install_transmission_download_dir_infos
+
+    - name: Get informations about Transmission incomplete dir
+      ansible.builtin.stat:
+        path: "{{ tr_install_transmission_incomplete_dir }}"
+      register: tr_install_transmission_incomplete_dir_infos
+
+    - name: Set ACLs to disabled if download or incomplete dir is located on network drive
+      ansible.builtin.set_fact:
+        tr_install_transmission_acls_enabled: 0
+      when: not tr_install_transmission_download_dir_infos.stat.isblk or not tr_install_transmission_incomplete_dir_infos.stat.isblk
+
+    - name: Start Transmission Daemon
+      ansible.builtin.service:
+        name: transmission-daemon
+        state: restarted

@@ -1,2 +1,6 @@
 ---
 # defaults file
+tr_install_transmission_rpc_username: 'sam'
+tr_install_transmission_rpc_password: 's4mP@55w0rd'
+tr_install_transmission_download_dir: "/var/lib/transmission-daemon/Downloads"
+tr_install_transmission_incomplete_dir: "/var/lib/transmission-daemon/Downloads"

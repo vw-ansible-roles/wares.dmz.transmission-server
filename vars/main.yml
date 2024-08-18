@@ -1,2 +1,17 @@
 ---
 # vars file
+tr_install_transmission_bind_address_ipv4: '0.0.0.0' # default: '0.0.0.0'
+tr_install_transmission_bind_address_ipv6: '::' # default: '::'
+tr_install_transmission_acls_enabled: 1
+tr_install_transmission_user: "{{ ansible_facts['os_family']|lower }}-transmission"
+tr_install_transmission_group: "{{ ansible_facts['os_family']|lower }}-transmission"
+tr_install_transmission_port_forwarding_enabled: 'true' # default: 'false'
+tr_install_transmission_prefetch_enabled: 'true' # default: 'true'
+tr_install_transmission_rpc_whitelist: '*.*.*.*' # default: '127.0.0.1'
+tr_install_transmission_speed_limit_down: '500' # default: '100'
+tr_install_transmission_speed_limit_down_enabled: 'false' # default: 'false'
+tr_install_transmission_speed_limit_up: '500' # default: '100'
+tr_install_transmission_speed_limit_up_enabled: 'true' # default: 'false'
+tr_install_transmission_upload_limit: '50' # default: '100'
+tr_install_transmission_upload_limit_enabled: '1' # default: '0'
+tr_install_transmission_umask: '2' # default : '18'
